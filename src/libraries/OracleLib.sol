@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// import {AggregatorV3Interface} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {console} from "lib/forge-std/src/console.sol";
 import { IndexedAssetPriceFeed } from './IndexedAssetPriceFeed.sol';
 import {AggregatorV3Interface} from "../../lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 
 /*
  * @title OracleLib
- * @author Patrick Collins
  * @notice This library is used to check the Chainlink Oracle for stale data.
  * If a price is stale, functions will revert, and render the DSCEngine unusable - this is by design.
  * We want the DSCEngine to freeze if prices become stale.

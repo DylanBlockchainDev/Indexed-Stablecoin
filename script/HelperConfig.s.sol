@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIt
 pragma solidity ^0.8.19;
 
 import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";

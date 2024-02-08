@@ -1,27 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// This is considered an Exogenous, Decentralized, Anchored (pegged), Crypto Collateralized low volitility coin
-
-// Layout of Contract:
-// version
-// imports
-// errors
-// interfaces, libraries, contracts
-// Type declarations
-// State variables
-// Events
-// Modifiers
-// Functions
-
-// Layout of Functions:
-// constructor
-// receive function (if exists)
-// fallback function (if exists)
-// external
-// public
-// internal
-// private
-// view & pure functions
+// This is considered an Exogenous, Decentralized, Anchored (pegged)
 
 pragma solidity ^0.8.19;
 
@@ -30,12 +9,9 @@ import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /*
  * @title DecentralizedStableCoin
- * @author Dylan Katsch
- * credit to Patrick Collins, this project is based and still mostlly the same to the project from Patrick Collins's course "Learn Solidity, Blockchain Development, & Smart Contracts | Powered By AI - Full Course" with a few changes.
  * Collateral: Exogenous
  * Minting (Stability Mechanism): Decentralized (Algorithmic)
- * Value (Relative Stability): Anchored (Pegged to USD)
- * Collateral Type: Crypto
+ * Value (Relative Stability): Anchored 
  *
  * This is the contract meant to be owned by DSCEngine. It is a ERC20 token that can be minted and burned by the DSCEngine smart contract.
  */
@@ -43,14 +19,7 @@ contract DecentralizedStableCoin is ERC20Burnable, Ownable(msg.sender) {
     error DecentralizedStableCoin__AmountMustBeMoreThanZero();
     error DecentralizedStableCoin__BurnAmountExceedsBalance();
     error DecentralizedStableCoin__NotZeroAddress();
-
-    /*
-    In future versions of OpenZeppelin contracts package, Ownable must be declared with an address of the contract owner as a parameter.
-    For example:
-    constructor() ERC20("DecentralizedStableCoin", "DSC") Ownable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) {}
-    Related code changes can be viewed in this commit:
-    https://github.com/OpenZeppelin/openzeppelin-contracts/commit/13d5e0466a9855e9305119ed383e54fc913fdc60
-    */
+    
     constructor() ERC20("DecentralizedStableCoin", "DSC") {}
 
     function burn(uint256 _amount) public override onlyOwner {

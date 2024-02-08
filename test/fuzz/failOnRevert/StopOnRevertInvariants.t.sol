@@ -16,7 +16,6 @@ import {DeployDSC} from "../../../script/DeployDSC.s.sol";
 import {ERC20Mock} from "lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 import {StopOnRevertHandler} from "./StopOnRevertHandler.t.sol";
 import {console} from "../../../lib/forge-std/src/console.sol";
-// import {MockV3Aggregator} from "../../mocks/MockV3Aggregator.sol";
 
 contract StopOnRevertInvariants is StdInvariant, Test {
     DSCEngine public dsce;
@@ -48,7 +47,6 @@ contract StopOnRevertInvariants is StdInvariant, Test {
         (ethUsdPriceFeed, btcUsdPriceFeed, weth, wbtc,) = helperConfig.activeNetworkConfig();
         handler = new StopOnRevertHandler(dsce, dsc);
         targetContract(address(handler));
-        // targetContract(address(ethUsdPriceFeed)); Why can't we just do this?
     }
 
     function invariant_protocolMustHaveMoreValueThatTotalSupplyDollars() public view {

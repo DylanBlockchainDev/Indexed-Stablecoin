@@ -66,7 +66,7 @@ contract OracleLibTest is StdCheats, Test {
     function testPriceRevertsOnBadAnsweredInRound() public {
         uint80 _roundId = 0;
         int256 _answer = 0;
-        uint256 _timestamp = block.timestamp + 2; // 2 - infinity
+        uint256 _timestamp = block.timestamp + 2; 
         uint256 _startedAt = 0;
         aggregator.setRoundDataForTesting(_mockPriceFeedAddress, _roundId, _answer, _timestamp, _startedAt);
 
@@ -80,12 +80,12 @@ contract OracleLibTest is StdCheats, Test {
 
     // AggregatorV3Interface Tests
 
-    function testGetTimeoutAggregatorV3Interface() public { // check aggregator !!!!!!!!!!!!!!!!!!!!!!!!!!!
+    function testGetTimeoutAggregatorV3Interface() public { 
         uint256 expectedTimeout = 3 hours;
         assertEq(OracleLib.getTimeoutAggregatorV3Interface(AggregatorV3Interface(address(aggregator))), expectedTimeout);
     }
 
-    function testPriceRevertsOnStaleCheckAggregatorV3Interface() public { // check aggregator !!!!!!!!!!!!!!!!!!!!!!!!!!!
+    function testPriceRevertsOnStaleCheckAggregatorV3Interface() public { 
         vm.warp(block.timestamp + 4 hours + 1 seconds);
         vm.roll(block.number + 1);
 
@@ -100,7 +100,7 @@ contract OracleLibTest is StdCheats, Test {
         }
     }
 
-    function testPriceRevertsOnBadAnsweredInRoundAggregatorV3Interface() public { // check aggregator !!!!!!!!!!!!!!!!!!!!!!!!!!!
+    function testPriceRevertsOnBadAnsweredInRoundAggregatorV3Interface() public { 
         uint80 _roundId = 0;
         int256 _answer = 0;
         uint256 _timestamp = 0;

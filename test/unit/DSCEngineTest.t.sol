@@ -23,7 +23,6 @@ contract DSCEngineTest is StdCheats, Test {
     DSCEngine public dsce;
     DecentralizedStableCoin public dsc;
     HelperConfig public helperConfig;
-    // IndexedAssetPriceFeed public indexedAssetPriceFeed;
 
     address public indexedAssetPriceFeedAddress;
 
@@ -52,19 +51,6 @@ contract DSCEngineTest is StdCheats, Test {
         if (block.chainid == 31337) {
             vm.deal(user, STARTING_USER_BALANCE);
         }
-        // Should we put our integration tests here?
-        // else {
-        //     user = vm.addr(deployerKey);
-        //     ERC20Mock mockErc = new ERC20Mock("MOCK", "MOCK", user, 100e18);
-        //     MockV3Aggregator aggregatorMock = new MockV3Aggregator(
-        //         helperConfig.DECIMALS(),
-        //         helperConfig.ETH_USD_PRICE()
-        //     );
-        //     vm.etch(weth, address(mockErc).code);
-        //     vm.etch(wbtc, address(mockErc).code);
-        //     vm.etch(ethUsdPriceFeed, address(aggregatorMock).code);
-        //     vm.etch(btcUsdPriceFeed, address(aggregatorMock).code);
-        // }
 
         // Create an array of AggregatorV3Interface addresses for the IndexedAssetPriceFeed
         AggregatorV3Interface[] memory priceFeeds = new AggregatorV3Interface[](2);
@@ -256,8 +242,6 @@ contract DSCEngineTest is StdCheats, Test {
     }
 
     function testRevertsIfMintAmountBreaksHealthFactor() public depositedCollateral{
-        // 0xe580cc6100000000000000000000000000000000000000000000000006f05b59d3b20000
-        // 0xe580cc6100000000000000000000000000000000000000000000003635c9adc5dea00000
         (, int256 price,,,) = MockV3Aggregator(ethUsdPriceFeed).latestRoundData();
         amountToMint = (amountCollateral * (uint256(price) * dsce.getAdditionalFeedPrecision())) / dsce.getPrecision();
 
@@ -580,22 +564,4 @@ contract DSCEngineTest is StdCheats, Test {
         uint256 actualLiquidationPrecision = dsce.getLiquidationPrecision();
         assertEq(actualLiquidationPrecision, expectedLiquidationPrecision);
     }
-
-    // How do we adjust our invariant tests for this?
-    // function testInvariantBreaks() public depositedCollateralAndMintedDsc {
-    //     MockV3Aggregator(ethUsdPriceFeed).updateAnswer(0);
-
-    //     uint256 totalSupply = dsc.totalSupply();
-    //     uint256 wethDeposted = ERC20Mock(weth).balanceOf(address(dsce));
-    //     uint256 wbtcDeposited = ERC20Mock(wbtc).balanceOf(address(dsce));
-
-    //     uint256 wethValue = dsce.getUsdValue(weth, wethDeposted);
-    //     uint256 wbtcValue = dsce.getUsdValue(wbtc, wbtcDeposited);
-
-    //     console.log("wethValue: %s", wethValue);
-    //     console.log("wbtcValue: %s", wbtcValue);
-    //     console.log("totalSupply: %s", totalSupply);
-
-    //     assert(wethValue + wbtcValue >= totalSupply);
-    // }
 }

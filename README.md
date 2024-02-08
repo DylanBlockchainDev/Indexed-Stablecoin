@@ -1,3 +1,6 @@
+author Dylan Katsch
+credit to Patrick Collins, this project is based on the project from Patrick Collins's course "Learn Solidity, Blockchain Development, & Smart Contracts | Powered By AI - Full Course".
+
 # Foundry DeFi Stablecoin
 
 This is a section of the Cyfrin Foundry Solidity Course.
@@ -28,6 +31,7 @@ This project is meant to be a stablecoin where users can deposit WETH and WBTC i
 - [Formatting](#formatting)
 - [Slither](#slither)
 - [Thank you!](#thank-you)
+- [Indexed-Stablecoin](#indexed-stablecoin)
 
 # Getting Started
 
@@ -191,4 +195,5 @@ Price feeds for the DSC coin: These are used to determine the value of the DSC c
 Regarding your second question, yes, the DSCEngine contract still accepts the collateral tokens and keeps them. When a user wants to mint DSC coins, they send their collateral tokens to the DSCEngine contract. The contract then mints the equivalent amount of DSC coins and sends them to the user. The collateral tokens remain in the contract until the user decides to redeem them by burning their DSC coins 1.
 
 The modifications made to the DSCEngine contract to handle price feeds instead of token addresses for the collateral do not change the basic mechanism of handling the collateral. The contract still accepts the collateral tokens, determines their value in USD using the price feeds, and mints the equivalent amount of DSC coins. The only difference is that the contract now uses price feeds to determine the value of the collateral instead of token addresses 2.
+
 # Indexed-Stablecoin

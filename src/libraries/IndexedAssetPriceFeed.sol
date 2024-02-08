@@ -5,6 +5,8 @@ pragma solidity ^0.8.19;
 import {AggregatorV3Interface} from "../../lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {MockV3Aggregator} from "../../test/mocks/MockV3Aggregator.sol";
 
+// This contract aggregates the multiple prices from multiple chainlink price feeds (all must be USD pairs) and adds up all the prices and then divides the total by the number of price feeds returning an indexed average value which will be used for the DSC token to be pegged to. 
+// Apologies for the poor documentation, it's still a skill being practiced.
 
 contract IndexedAssetPriceFeed {
     error PriceTooHigh(uint256 givenPrice);
@@ -54,10 +56,8 @@ contract IndexedAssetPriceFeed {
     }
 
     function setRoundDataForTesting(address _mockPriceFeedAddress, uint80 _roundId, int256 _answer, uint256 _timestamp, uint256 _startedAt) external {
-        // Assuming you want to set the round data for the first price feed
         MockV3Aggregator mockPriceFeed = MockV3Aggregator(_mockPriceFeedAddress);
 
-        // Call the updateRoundData function on the price feed
         mockPriceFeed.updateRoundData(_roundId, _answer, _timestamp, _startedAt);
     }
 

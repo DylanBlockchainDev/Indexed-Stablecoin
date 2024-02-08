@@ -1,25 +1,3 @@
-// Layout of Contract:
-// version
-// imports
-// interfaces, libraries, contracts
-// errors
-// Type declarations
-// State variables
-// Events
-// Modifiers
-// Functions
-
-// Layout of Functions:
-// constructor
-// receive function (if exists)
-// fallback function (if exists)
-// external
-// public
-// internal
-// private
-// internal & private view & pure functions
-// external & public view & pure functions
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.19;
@@ -30,14 +8,10 @@ import {IndexedAssetPriceFeed} from "./libraries/IndexedAssetPriceFeed.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {DecentralizedStableCoin} from "./DecentralizedStableCoin.sol";
-// import {console} from "../lib/forge-std/src/console.sol";
 
 /*
  * @title DSCEngine
- * @author Dylan Katsch
- * credit to Patrick Collins, this project is base on a repository for Patrick     Collins's github.
- *
- * The system is designed to be as minimal as possible, and have the tokens maintain a 1 token == $1 peg at all times.
+ * The system is designed to be as minimal as possible, and have the tokens maintain a 1 token  peg to indexed average price return from the IndexedAssetPriceFeed.sol contract.
  * This is a stablecoin with the properties:
  * - Exogenously Collateralized
  * - Dollar Pegged
@@ -235,15 +209,6 @@ contract DSCEngine is ReentrancyGuard {
      * @param amountDscToMint: The amount of DSC you want to mint
      * You can only mint DSC if you hav enough collateral
      */
-    // function mintDsc(uint256 amountDscToMint) public moreThanZero(amountDscToMint) nonReentrant {
-    //     s_DSCMinted[msg.sender] += amountDscToMint;
-    //     revertIfHealthFactorIsBroken(msg.sender);
-    //     bool minted = i_dsc.mint(msg.sender, amountDscToMint);
-
-    //     if (minted != true) {
-    //         revert DSCEngine__MintFailed();
-    //     }
-    // }
     function mintDsc(uint256 amountDscToMint) public moreThanZero(amountDscToMint) nonReentrant {
         // Retrieve the indexed average price from the IndexedAssetPriceFeed contract
         uint256 indexedPrice = indexedAssetPriceFeed.getLatestPrice();
@@ -263,7 +228,6 @@ contract DSCEngine is ReentrancyGuard {
 
         // Mint the DSC tokens
         bool minted = i_dsc.mint(msg.sender, amountDscToMint);
-        // require(minted, "Minting failed");
         
         if (minted != true) {
             revert DSCEngine__MintFailed();
@@ -337,16 +301,6 @@ contract DSCEngine is ReentrancyGuard {
         (, int256 price,,,) = OracleLib.staleCheckLatestRoundDataOnCollateral(priceFeed);
         return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
     }
-
-    // function _getUsdValue(address token, uint256 amount) private view returns (uint256) {
-    //     AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
-    //     (, int256 price,,,) = priceFeed.staleCheckLatestRoundData();
-    //     // 1 ETH = 1000 USD
-    //     // The returned value from Chainlink will be 1000 * 1e8
-    //     // Most USD pairs have 8 decimals, so we will just pretend they all do
-    //     // We want to have everything in terms of WEI, so we add 10 zeros at the end
-    //     return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
-    // }
 
     function _calculateHealthFactor(uint256 totalDscMinted, uint256 collateralValueInUsd)
         internal
