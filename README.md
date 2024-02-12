@@ -39,3 +39,5 @@ The DSCEngine project includes comprehensive tests to ensure the correctness and
 
 Conclusion
 The DSCEngine project demonstrates the power of blockchain technology in creating a stable and secure decentralized stablecoin. By leveraging Chainlink's Price Feeds and implementing robust smart contract mechanisms, the engine provides a reliable and transparent way to stabilize digital assets against real-world market conditions.
+
+Disclaimer: I humbly acknowledge that this project is the creation of a learning and aspiring junior blockchain, solidity, web3 developer. I have invested my best efforts, but I cannot guarantee with absolute certainty that everything is error-free and completely secure, despite thorough testing. Therefore, if anyone chooses to utilize this project, it is essential to be well-informed about the actions taken. Moreover, I welcome any constructive feedback, suggestions, or insights from others who may wish to make improvements or highlight potential issues. Your contribution is not only welcome but deeply appreciated.
