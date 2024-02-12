@@ -3,7 +3,7 @@ Credit to Patrick Collins, this project is based on the project from Patrick Col
 
 The modifications I made are explained below.
 
-Decentralized Stable Coin Engine (DSCEngine) Project
+Decentralized Stable Coin Engine (DSCEngine) Project.
 The Decentralized Stable Coin Engine (DSCEngine) is a blockchain-based solution designed to create a decentralized stablecoin (DSC) that is pegged to a stable asset or a reference price, typically a fiat currency like USD. The engine utilizes Chainlink's Price Feeds to securely integrate real-world market data and ensure the stability of the DSC token's value.
 
 This project is meant to be a stablecoin where users can deposit WETH and WBTC in exchange for a token that will be pegged to the returned indexed average value from the IndexedAssetPriceFeed.sol contract.
