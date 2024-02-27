@@ -1,4 +1,4 @@
-# DSCEngine Project README
+# Indexed-Stablecoin Project README
 
 **Author:** Dylan Katsch
 
