@@ -133,7 +133,8 @@ contract DSCEngineTest is StdCheats, Test {
         vm.startPrank(user);
         ERC20Mock(address(mockDsc)).approve(address(mockDsce), amountCollateral);
         // Act / Assert
-        vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
+        // vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
+        vm.expectRevert("SafeERC20FailedOperation(address)");
         mockDsce.depositCollateral(address(mockDsc), amountCollateral);
         vm.stopPrank();
     }
@@ -318,7 +319,8 @@ contract DSCEngineTest is StdCheats, Test {
         ERC20Mock(address(mockDsc)).approve(address(mockDsce), amountCollateral);
         // Act / Assert
         mockDsce.depositCollateral(address(mockDsc), amountCollateral);
-        vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
+        // vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
+        vm.expectRevert("SafeERC20FailedOperation(address)");
         mockDsce.redeemCollateral(address(mockDsc), amountCollateral);
         vm.stopPrank();
     }

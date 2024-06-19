@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import { IndexedAssetPriceFeed } from './IndexedAssetPriceFeed.sol';
 import {AggregatorV3Interface} from "../../lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
@@ -19,7 +19,7 @@ library OracleLib {
     uint256 private constant TIMEOUT = 3 hours;
 
     function staleCheckLatestRoundData(IndexedAssetPriceFeed indexedAssetPriceFeed)
-        public returns (uint256)
+        external returns (uint256)
     {
         uint256 price = indexedAssetPriceFeed.getLatestPrice();
 
@@ -43,7 +43,7 @@ library OracleLib {
 
     // AggregatorV3Interface price tests
     function staleCheckLatestRoundDataOnCollateral(AggregatorV3Interface chainlinkFeed)
-        public
+        external
         view
         returns (uint80, int256, uint256, uint256, uint80)
     {
@@ -59,7 +59,7 @@ library OracleLib {
         return (roundId, answer, startedAt, updatedAt, answeredInRound);
     }
 
-    function getTimeoutAggregatorV3Interface(AggregatorV3Interface /* chainlinkFeed */ ) public pure returns (uint256) {
+    function getTimeoutAggregatorV3Interface(AggregatorV3Interface /* chainlinkFeed */ ) external pure returns (uint256) {
         return TIMEOUT;
     }
 }

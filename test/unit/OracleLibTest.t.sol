@@ -8,11 +8,13 @@ import {Test, console} from "lib/forge-std/src/Test.sol";
 import {StdCheats} from "lib/forge-std/src/StdCheats.sol";
 import {console} from "lib/forge-std/src/console.sol";
 import {OracleLib, IndexedAssetPriceFeed} from "../../src/libraries/OracleLib.sol";
+import {MockIndexedAssetPriceFeed} from "../mocks/MockIndexedAssetPriceFeed.sol";
 
 contract OracleLibTest is StdCheats, Test {
     using OracleLib for IndexedAssetPriceFeed;
 
     IndexedAssetPriceFeed public aggregator;
+    MockIndexedAssetPriceFeed public mockIndexedAggregator;
     MockV3Aggregator public mockAggregator;
     uint8 public constant DECIMALS = 8;
     int256 public constant INITAL_PRICE = 2000 ether;
@@ -36,6 +38,9 @@ contract OracleLibTest is StdCheats, Test {
 
         // Pass the instances to the IndexedAssetPriceFeed contract
         aggregator = new IndexedAssetPriceFeed(priceFeeds);
+
+        // Pass the instances to the MockIndexedAssetPriceFeed contract
+        mockIndexedAggregator = new MockIndexedAssetPriceFeed(priceFeeds);
 
         mockAggregator = new MockV3Aggregator(DECIMALS, INITAL_PRICE);
 
@@ -68,7 +73,7 @@ contract OracleLibTest is StdCheats, Test {
         int256 _answer = 0;
         uint256 _timestamp = block.timestamp + 2; 
         uint256 _startedAt = 0;
-        aggregator.setRoundDataForTesting(_mockPriceFeedAddress, _roundId, _answer, _timestamp, _startedAt);
+        mockIndexedAggregator.setRoundDataForTesting(_mockPriceFeedAddress, _roundId, _answer, _timestamp, _startedAt);
 
         try IndexedAssetPriceFeed(address(aggregator)).staleCheckLatestRoundData() {
             fail("Expected revert not received");

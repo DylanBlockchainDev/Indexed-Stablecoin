@@ -2,7 +2,7 @@
 
 // This is considered an Exogenous, Decentralized, Anchored (pegged)
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import {ERC20Burnable, ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";

@@ -7,7 +7,8 @@ import {Test} from "../../../lib/forge-std/src/Test.sol";
 import {ERC20Mock} from "lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
 import {MockV3Aggregator} from "../../mocks/MockV3Aggregator.sol";
-import {DSCEngine, IndexedAssetPriceFeed} from "../../../src/DSCEngine.sol";
+import {DSCEngine} from "../../../src/DSCEngine.sol";
+import {IndexedAssetPriceFeed} from "../../../src/libraries/IndexedAssetPriceFeed.sol";
 import {DecentralizedStableCoin} from "../../../src/DecentralizedStableCoin.sol";
 import {console} from "../../../lib/forge-std/src/console.sol";
 

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import {AggregatorV3Interface} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {OracleLib} from "./libraries/OracleLib.sol";
 import {IndexedAssetPriceFeed} from "./libraries/IndexedAssetPriceFeed.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {DecentralizedStableCoin} from "./DecentralizedStableCoin.sol";
 
 /*
@@ -28,7 +29,7 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__TokenAddressesAndPriceFeedAddressesAmountsDontMatch();
     error DSCEngine__NeedsMoreThanZero();
     error DSCEngine__TokenNotAllowed(address token);
-    error DSCEngine__TransferFailed();
+    // error DSCEngine__TransferFailed();
     error DSCEngine__BreaksHealthFactor(uint256 healthFactorValue);
     error DSCEngine__MintFailed();
     error DSCEngine__HealthFactorOk();
@@ -78,13 +79,18 @@ contract DSCEngine is ReentrancyGuard {
         _;
     }
 
-    modifier isAllowedToken(address token) {
-        if (s_priceFeeds[token] == address(0)) {
-            revert DSCEngine__TokenNotAllowed(token);
-        }
-        _;
-    }
+    // modifier isAllowedToken(address token) {
+    //     if (s_priceFeeds[token] == address(0)) {
+    //         revert DSCEngine__TokenNotAllowed(token);
+    //     }
+    //     _;
+    // }
 
+    // modifier isAllowedToBurnDsc(address onBehalfOf, address dscFrom) {
+    //     require(dscFrom == onBehalfOf, "Caller is not authorized to burn DSC");
+    //     _;
+    // }
+    //// Look into this!!!!!!
 
     ///////////////////
     // Functions
@@ -100,6 +106,10 @@ contract DSCEngine is ReentrancyGuard {
             s_collateralTokens.push(tokenAddresses[i]);
         }
         i_dsc = DecentralizedStableCoin(dscAddress);
+
+        // Check for address(0) assignment
+        require(indexedAssetPriceFeedAddress!= address(0), "Invalid indexed asset price feed address");
+
         indexedAssetPriceFeed = IndexedAssetPriceFeed(indexedAssetPriceFeedAddress);
     }
 
@@ -144,8 +154,8 @@ contract DSCEngine is ReentrancyGuard {
      */
     function redeemCollateral(address tokenCollateralAddress, uint256 amountCollateral)
         external
-        moreThanZero(amountCollateral)
         nonReentrant
+        moreThanZero(amountCollateral)
     {
         _redeemCollateral(tokenCollateralAddress, amountCollateral, msg.sender, msg.sender);
         revertIfHealthFactorIsBroken(msg.sender);
@@ -175,8 +185,8 @@ contract DSCEngine is ReentrancyGuard {
      */
     function liquidate(address collateral, address user, uint256 debtToCover)
         external
-        moreThanZero(debtToCover)
         nonReentrant
+        moreThanZero(debtToCover)
     {
         uint256 startingUserHealthFactor = _healthFactor(user);
         if (startingUserHealthFactor >= MIN_HEALTH_FACTOR) {
@@ -209,7 +219,7 @@ contract DSCEngine is ReentrancyGuard {
      * @param amountDscToMint: The amount of DSC you want to mint
      * You can only mint DSC if you hav enough collateral
      */
-    function mintDsc(uint256 amountDscToMint) public moreThanZero(amountDscToMint) nonReentrant {
+    function mintDsc(uint256 amountDscToMint) public nonReentrant moreThanZero(amountDscToMint) {
         // Retrieve the indexed average price from the IndexedAssetPriceFeed contract
         uint256 indexedPrice = indexedAssetPriceFeed.getLatestPrice();
         
@@ -241,16 +251,21 @@ contract DSCEngine is ReentrancyGuard {
      */
     function depositCollateral(address tokenCollateralAddress, uint256 amountCollateral)
         public
-        moreThanZero(amountCollateral)
         nonReentrant
-        isAllowedToken(tokenCollateralAddress)
+        moreThanZero(amountCollateral)
+        // isAllowedToken(tokenCollateralAddress)
     {
+        if (s_priceFeeds[tokenCollateralAddress] == address(0)) {
+            revert DSCEngine__TokenNotAllowed(tokenCollateralAddress);
+        }
+
         s_collateralDeposited[msg.sender][tokenCollateralAddress] += amountCollateral;
         emit CollateralDeposited(msg.sender, tokenCollateralAddress, amountCollateral);
-        bool success = IERC20(tokenCollateralAddress).transferFrom(msg.sender, address(this), amountCollateral);
-        if (!success) {
-            revert DSCEngine__TransferFailed();
-        }
+
+        // bool success = IERC20(tokenCollateralAddress).transferFrom(msg.sender, address(this), amountCollateral); // Remove this.
+
+        // Use SafeERC20's safeTransferFrom method
+        SafeERC20.safeTransferFrom(IERC20(tokenCollateralAddress), msg.sender, address(this), amountCollateral);
     }
 
     ///////////////////
@@ -261,20 +276,20 @@ contract DSCEngine is ReentrancyGuard {
     {
         s_collateralDeposited[from][tokenCollateralAddress] -= amountCollateral;
         emit CollateralRedeemed(from, to, tokenCollateralAddress, amountCollateral);
-        bool success = IERC20(tokenCollateralAddress).transfer(to, amountCollateral);
-        if (!success) {
-            revert DSCEngine__TransferFailed();
-        }
+        // bool success = IERC20(tokenCollateralAddress).transfer(to, amountCollateral); // remove this
+
+        SafeERC20.safeTransfer(IERC20(tokenCollateralAddress), to, amountCollateral);
+
     }
 
     function _burnDsc(uint256 amountDscToBurn, address onBehalfOf, address dscFrom) private {
+
         s_DSCMinted[onBehalfOf] -= amountDscToBurn;
 
-        bool success = i_dsc.transferFrom(dscFrom, address(this), amountDscToBurn);
-        // This conditional is hypothetically unreachable
-        if (!success) {
-            revert DSCEngine__TransferFailed();
-        }
+        // bool success = i_dsc.transferFrom(dscFrom, address(this), amountDscToBurn); // remove this.
+        
+        SafeERC20.safeTransferFrom(i_dsc, dscFrom, address(this), amountDscToBurn);
+
         i_dsc.burn(amountDscToBurn);
     }
 

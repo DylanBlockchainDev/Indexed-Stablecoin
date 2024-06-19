@@ -5,11 +5,13 @@ pragma solidity ^0.8.19;
 import {Test, console} from "lib/forge-std/src/Test.sol";
 import {console} from "lib/forge-std/src/console.sol";
 import {IndexedAssetPriceFeed} from "../../src/libraries/IndexedAssetPriceFeed.sol";
+import {MockIndexedAssetPriceFeed} from "../mocks/MockIndexedAssetPriceFeed.sol";
 import {AggregatorV3Interface} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import {MockV3Aggregator} from "../mocks/MockV3Aggregator.sol";
 
 contract IndexedAssetPriceFeedTest is Test {
    IndexedAssetPriceFeed public indexedAssetPriceFeed;
+   MockIndexedAssetPriceFeed public mockIndexedAssetPriceFeed;
    AggregatorV3Interface[] public priceFeeds;
    MockV3Aggregator[] public mockPriceFeeds;
 
@@ -100,11 +102,11 @@ contract IndexedAssetPriceFeedTest is Test {
         priceFeeds = new AggregatorV3Interface[](1);
         priceFeeds[0] = AggregatorV3Interface(address(mockPriceFeed));
 
-        // Initialize the IndexedAssetPriceFeed contract with the price feeds array
-        indexedAssetPriceFeed = new IndexedAssetPriceFeed(priceFeeds);
+        // Initialize the MockIndexedAssetPriceFeed contract with the price feeds array
+        mockIndexedAssetPriceFeed = new MockIndexedAssetPriceFeed(priceFeeds);
 
         // Update the round data of the mock price feed
-        indexedAssetPriceFeed.setRoundDataForTesting(address(mockPriceFeed), 1, 2000, 0, 0);
+        mockIndexedAssetPriceFeed.setRoundDataForTesting(address(mockPriceFeed), 1, 2000, 0, 0);
 
         // Get the round data of the mock price feed
         (,int256 price,,,) = mockPriceFeed.latestRoundData();
@@ -115,5 +117,4 @@ contract IndexedAssetPriceFeedTest is Test {
         // Assert that the price of the mock price feed is correct
         assertTrue(price == 2000, "The price of the mock price feed is not correct");
     }
-
 }
