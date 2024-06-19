@@ -3,6 +3,7 @@
 **Author:** Dylan Katsch
 
 **Credit:** This project is based on Patrick Collins's course, ["Learn Solidity, Blockchain Development, & Smart Contracts | Powered By AI - Full Course" "Lesson 12: Foundry DeFi | Stablecoin (The PINNACLE PROJECT!! GET HERE!)"](https://github.com/Cyfrin/foundry-defi-stablecoin-f23).
+Which you could also see on "Cyfrin Updrafte" at 'updraft.cyfrin.io'.
 
 ## Introduction
 
