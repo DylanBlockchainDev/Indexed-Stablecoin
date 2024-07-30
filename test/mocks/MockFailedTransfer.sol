@@ -33,7 +33,11 @@ contract MockFailedTransfer is ERC20Burnable, Ownable(msg.sender) {
         _mint(account, amount);
     }
 
+    // function transfer(address, /*recipient*/ uint256 /*amount*/ ) public pure override returns (bool) {
+    //     return false;
+    // }
+
     function transfer(address, /*recipient*/ uint256 /*amount*/ ) public pure override returns (bool) {
-        return false;
+        revert("MockFailedTransfer: transfer failed");
     }
 }

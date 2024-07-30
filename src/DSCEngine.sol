@@ -7,7 +7,7 @@ import {OracleLib} from "./libraries/OracleLib.sol";
 import {IndexedAssetPriceFeed} from "./libraries/IndexedAssetPriceFeed.sol";
 import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {DecentralizedStableCoin} from "./DecentralizedStableCoin.sol";
 
 /*
@@ -29,7 +29,7 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__TokenAddressesAndPriceFeedAddressesAmountsDontMatch();
     error DSCEngine__NeedsMoreThanZero();
     error DSCEngine__TokenNotAllowed(address token);
-    // error DSCEngine__TransferFailed();
+    error DSCEngine__TransferFailed();
     error DSCEngine__BreaksHealthFactor(uint256 healthFactorValue);
     error DSCEngine__MintFailed();
     error DSCEngine__HealthFactorOk();
@@ -44,7 +44,7 @@ contract DSCEngine is ReentrancyGuard {
     // State Variables
     ///////////////////
     DecentralizedStableCoin private immutable i_dsc;
-    IndexedAssetPriceFeed private indexedAssetPriceFeed;
+    IndexedAssetPriceFeed private immutable i_indexedAssetPriceFeed;
 
     uint256 private constant LIQUIDATION_THRESHOLD = 50; // This means you need to be 200% over-collateralized
     uint256 private constant LIQUIDATION_BONUS = 10; // This means you get assets at a 10% discount when liquidating
@@ -52,7 +52,7 @@ contract DSCEngine is ReentrancyGuard {
     uint256 private constant MIN_HEALTH_FACTOR = 1e18;
     uint256 private constant PRECISION = 1e18;
     uint256 private constant ADDITIONAL_FEED_PRECISION = 1e10;
-    uint256 private constant FEED_PRECISION = 1e8;
+    // uint256 private constant FEED_PRECISION = 1e8; // Never used
 
     /// @dev Mapping of token address to price feed address
     mapping(address collateralToken => address priceFeed) private s_priceFeeds;
@@ -110,7 +110,7 @@ contract DSCEngine is ReentrancyGuard {
         // Check for address(0) assignment
         require(indexedAssetPriceFeedAddress!= address(0), "Invalid indexed asset price feed address");
 
-        indexedAssetPriceFeed = IndexedAssetPriceFeed(indexedAssetPriceFeedAddress);
+        i_indexedAssetPriceFeed = IndexedAssetPriceFeed(indexedAssetPriceFeedAddress);
     }
 
     ///////////////////
@@ -139,6 +139,7 @@ contract DSCEngine is ReentrancyGuard {
      */
     function redeemCollateralForDsc(address tokenCollateralAddress, uint256 amountCollateral, uint256 amountDscToBurn)
         external
+        nonReentrant
         moreThanZero(amountCollateral)
     {
         _burnDsc(amountDscToBurn, msg.sender, msg.sender);
@@ -209,6 +210,7 @@ contract DSCEngine is ReentrancyGuard {
         if (endingUserHealthFactor <= startingUserHealthFactor) {
             revert DSCEngine__HealthFactorNotImproved();
         }
+        
         revertIfHealthFactorIsBroken(msg.sender);
     }
 
@@ -221,7 +223,7 @@ contract DSCEngine is ReentrancyGuard {
      */
     function mintDsc(uint256 amountDscToMint) public nonReentrant moreThanZero(amountDscToMint) {
         // Retrieve the indexed average price from the IndexedAssetPriceFeed contract
-        uint256 indexedPrice = indexedAssetPriceFeed.getLatestPrice();
+        uint256 indexedPrice = i_indexedAssetPriceFeed.getLatestPrice();
         
         // Calculate the total value of the collateral in indexed units
         uint256 collateralValueInIndexedUnits = (amountDscToMint * indexedPrice) / PRECISION;
@@ -230,19 +232,18 @@ contract DSCEngine is ReentrancyGuard {
         uint256 totalCollateralValueInIndexedUnits = getAccountCollateralValue(msg.sender);
         require(totalCollateralValueInIndexedUnits >= collateralValueInIndexedUnits, "Insufficient collateral");
         
+        
+        // Mint the DSC tokens
+        bool minted = i_dsc.mint(msg.sender, amountDscToMint);
+        if (minted != true) {
+            revert DSCEngine__MintFailed();
+        }
+        
         // Update the amount of DSC minted by the user
         s_DSCMinted[msg.sender] += amountDscToMint;
         
         // Revert if the health factor is broken after minting
         revertIfHealthFactorIsBroken(msg.sender);
-
-        // Mint the DSC tokens
-        bool minted = i_dsc.mint(msg.sender, amountDscToMint);
-        
-        if (minted != true) {
-            revert DSCEngine__MintFailed();
-        }
-        
     }
 
     /*
@@ -258,38 +259,51 @@ contract DSCEngine is ReentrancyGuard {
         if (s_priceFeeds[tokenCollateralAddress] == address(0)) {
             revert DSCEngine__TokenNotAllowed(tokenCollateralAddress);
         }
-
+        
         s_collateralDeposited[msg.sender][tokenCollateralAddress] += amountCollateral;
         emit CollateralDeposited(msg.sender, tokenCollateralAddress, amountCollateral);
-
+        
         // bool success = IERC20(tokenCollateralAddress).transferFrom(msg.sender, address(this), amountCollateral); // Remove this.
-
+        // if (!success) {
+            //     revert DSCEngine__TransferFailed();
+            // }
+            
         // Use SafeERC20's safeTransferFrom method
         SafeERC20.safeTransferFrom(IERC20(tokenCollateralAddress), msg.sender, address(this), amountCollateral);
-    }
-
+        }
+        
     ///////////////////
     // Private Functions
     ///////////////////
     function _redeemCollateral(address tokenCollateralAddress, uint256 amountCollateral, address from, address to)
         private
+        // nonReentrant HERE!!!
     {
         s_collateralDeposited[from][tokenCollateralAddress] -= amountCollateral;
         emit CollateralRedeemed(from, to, tokenCollateralAddress, amountCollateral);
+        
         // bool success = IERC20(tokenCollateralAddress).transfer(to, amountCollateral); // remove this
-
+        // if (!success) {
+            //     revert DSCEngine__TransferFailed();
+            // }
+            
         SafeERC20.safeTransfer(IERC20(tokenCollateralAddress), to, amountCollateral);
-
     }
 
-    function _burnDsc(uint256 amountDscToBurn, address onBehalfOf, address dscFrom) private {
+    function _burnDsc(uint256 amountDscToBurn, address onBehalfOf, address dscFrom) 
+    private 
+    // nonReentrant HERE!!!
+    {
 
         s_DSCMinted[onBehalfOf] -= amountDscToBurn;
 
         // bool success = i_dsc.transferFrom(dscFrom, address(this), amountDscToBurn); // remove this.
+        // if (!success) {
+        //     revert DSCEngine__TransferFailed();
+        // }
         
         SafeERC20.safeTransferFrom(i_dsc, dscFrom, address(this), amountDscToBurn);
-
+        
         i_dsc.burn(amountDscToBurn);
     }
 

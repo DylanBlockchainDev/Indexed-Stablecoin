@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
 import {DeployDSC} from "../../script/DeployDSC.s.sol";
 import {DSCEngine} from "../../src/DSCEngine.sol";
@@ -133,8 +133,8 @@ contract DSCEngineTest is StdCheats, Test {
         vm.startPrank(user);
         ERC20Mock(address(mockDsc)).approve(address(mockDsce), amountCollateral);
         // Act / Assert
-        // vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
-        vm.expectRevert("SafeERC20FailedOperation(address)");
+        // vm.expectRevert("SafeERC20FailedOperation(address)");
+        vm.expectRevert("MockFailedTransferFrom: transfer from failed");
         mockDsce.depositCollateral(address(mockDsc), amountCollateral);
         vm.stopPrank();
     }
@@ -319,8 +319,8 @@ contract DSCEngineTest is StdCheats, Test {
         ERC20Mock(address(mockDsc)).approve(address(mockDsce), amountCollateral);
         // Act / Assert
         mockDsce.depositCollateral(address(mockDsc), amountCollateral);
-        // vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
-        vm.expectRevert("SafeERC20FailedOperation(address)");
+        // vm.expectRevert("SafeERC20: low-level call failed");
+        vm.expectRevert("MockFailedTransfer: transfer failed");
         mockDsce.redeemCollateral(address(mockDsc), amountCollateral);
         vm.stopPrank();
     }
