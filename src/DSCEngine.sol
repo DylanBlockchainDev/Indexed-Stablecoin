@@ -79,18 +79,12 @@ contract DSCEngine is ReentrancyGuard {
         _;
     }
 
-    // modifier isAllowedToken(address token) {
-    //     if (s_priceFeeds[token] == address(0)) {
-    //         revert DSCEngine__TokenNotAllowed(token);
-    //     }
-    //     _;
-    // }
-
-    // modifier isAllowedToBurnDsc(address onBehalfOf, address dscFrom) {
-    //     require(dscFrom == onBehalfOf, "Caller is not authorized to burn DSC");
-    //     _;
-    // }
-    //// Look into this!!!!!!
+    modifier isAllowedToken(address token) {
+        if (s_priceFeeds[token] == address(0)) {
+            revert DSCEngine__TokenNotAllowed(token);
+        }
+        _;
+    }
 
     ///////////////////
     // Functions
@@ -254,7 +248,7 @@ contract DSCEngine is ReentrancyGuard {
         public
         nonReentrant
         moreThanZero(amountCollateral)
-        // isAllowedToken(tokenCollateralAddress)
+        isAllowedToken(tokenCollateralAddress)
     {
         if (s_priceFeeds[tokenCollateralAddress] == address(0)) {
             revert DSCEngine__TokenNotAllowed(tokenCollateralAddress);
