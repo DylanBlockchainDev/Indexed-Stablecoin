@@ -83,6 +83,23 @@ cd Indexed-Stablecoin
 forge build
 ```
 
+## Testing
+
+We used 2 types of testing in the project
+
+1. **Unit testing**
+2. **Fuzz testing**
+
+Use these commands to run tests and see coverage
+
+```
+forge test
+```
+
+```
+forge coverage
+```
+
 ## Conclusion
 
 The DSCEngine project demonstrates the power of blockchain technology in creating a stable and secure decentralized stablecoin. By leveraging Chainlink's Price Feeds and implementing robust smart contract mechanisms, the engine provides a reliable and transparent way to stabilize digital assets against real-world market conditions.
