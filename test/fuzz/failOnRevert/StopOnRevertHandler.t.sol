@@ -63,6 +63,7 @@ contract StopOnRevertHandler is Test {
         if (amountCollateral == 0) {
             return;
         }
+        vm.prank(msg.sender); // here!!!
         dscEngine.redeemCollateral(address(collateral), amountCollateral);
     }
 
@@ -72,7 +73,10 @@ contract StopOnRevertHandler is Test {
         if (amountDsc == 0) {
             return;
         }
+        vm.startPrank(msg.sender);
+        dsc.approve(address(dscEngine), amountDsc);
         dscEngine.burnDsc(amountDsc);
+        vm.stopPrank();
     }
 
     // Only the DSCEngine can mint DSC!
