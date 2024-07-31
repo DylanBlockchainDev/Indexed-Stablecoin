@@ -22,16 +22,9 @@ library OracleLib {
         external returns (uint256)
     {
         uint256 price = indexedAssetPriceFeed.getLatestPrice();
-
-        // console.log(price);
-
         uint256 secondsSince = block.timestamp - indexedAssetPriceFeed.getLatestTimeStamp();
 
-        // console.log("seconds Since Latest timestamp: %s", secondsSince);
-
         if (secondsSince > getTimeout()) revert OracleLib__StalePrice("Stale price detected");
-
-        // console.log(price);
 
         return price;
     }

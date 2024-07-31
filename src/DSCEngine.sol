@@ -79,13 +79,6 @@ contract DSCEngine is ReentrancyGuard {
         _;
     }
 
-    // modifier isAllowedToken(address token) {
-    //     if (s_priceFeeds[token] == address(0)) {
-    //         revert DSCEngine__TokenNotAllowed(token);
-    //     }
-    //     _;
-    // }  // LOOK INTO THIS -- CAN IT STAY OR CAN IT GO
-
     ///////////////////
     // Functions
     ///////////////////
@@ -102,7 +95,7 @@ contract DSCEngine is ReentrancyGuard {
         i_dsc = DecentralizedStableCoin(dscAddress);
 
         // Check for address(0) assignment
-        require(indexedAssetPriceFeedAddress!= address(0), "Invalid indexed asset price feed address");
+        require(indexedAssetPriceFeedAddress != address(0), "Invalid indexed asset price feed address");
 
         i_indexedAssetPriceFeed = IndexedAssetPriceFeed(indexedAssetPriceFeedAddress);
     }
@@ -248,7 +241,6 @@ contract DSCEngine is ReentrancyGuard {
         public
         nonReentrant
         moreThanZero(amountCollateral)
-        // isAllowedToken(tokenCollateralAddress)
     {
         if (s_priceFeeds[tokenCollateralAddress] == address(0)) {
             revert DSCEngine__TokenNotAllowed(tokenCollateralAddress);
