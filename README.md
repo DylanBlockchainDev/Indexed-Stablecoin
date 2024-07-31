@@ -63,6 +63,10 @@ The DSCEngine project aims to develop a decentralized stablecoin that leverages 
 
 The DSCEngine project includes comprehensive tests to ensure the correctness and security of the smart contracts. The Foundry forge framework was used to write, test, compile, and deploy the smart contracts. The tests cover various scenarios, including successful minting, insufficient collateral, and health factor breaches.
 
+## Getting Started
+
+## Requirements
+
 ## Conclusion
 
 The DSCEngine project demonstrates the power of blockchain technology in creating a stable and secure decentralized stablecoin. By leveraging Chainlink's Price Feeds and implementing robust smart contract mechanisms, the engine provides a reliable and transparent way to stabilize digital assets against real-world market conditions.
